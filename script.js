@@ -6,17 +6,37 @@ document.getElementById("searchButton").addEventListener("click", function () {
 });
 
 function fetchAndDisplayResults(searchTerm) {
-    const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=${searchTerm}`;
+    const apiUrl = `https://www.WEBSITE.hr/hr/rezultati-pretrage?s=1&keyword=${searchTerm}`;
 
     fetch(apiUrl)
-        .then((response) => response.json())
-        .then((data) => {
-            const results = data.query.search;
+        .then((response) => response.text()) // Fetch the HTML content, not JSON
+        .then((html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extract the data from the HTML document (e.g., using document.querySelector)
+            const results = extractDataFromHTML(doc);
+
             displayResults(results);
         })
         .catch((error) => {
             console.error("Error fetching data:", error);
         });
+}
+
+function extractDataFromHTML(doc) {
+    // Implement logic to extract data from the HTML document here.
+    // Use DOM manipulation techniques like doc.querySelector, doc.querySelectorAll, etc.
+    // and create an array of result objects.
+    // For example:
+    const results = [];
+    doc.querySelectorAll('.initialized').forEach((resultItem) => {
+        results.push({
+            title: resultItem.querySelector('.search-autocomplete').textContent,
+            snippet: resultItem.querySelector('.keyword').textContent,
+        });
+    });
+    return results;
 }
 
 function displayResults(results) {
@@ -30,7 +50,7 @@ function displayResults(results) {
 
         results.forEach((result) => {
             const li = document.createElement("li");
-            li.innerHTML = `<a href="https://en.wikipedia.org/wiki/${result.title}" target="_blank">${result.title}</a>: ${result.snippet}`;
+            li.innerHTML = `<a href="https://www.WEBSITE.hr/hr/rezultati-pretrage?s=1&keyword=${result.title}" target="_blank">${result.title}</a>: ${result.snippet}`;
             ul.appendChild(li);
         });
 
